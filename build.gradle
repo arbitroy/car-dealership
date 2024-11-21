@@ -9,15 +9,25 @@ repositories {
 }
 
 dependencies {
-    // SQLite JDBC Driver
     implementation 'org.xerial:sqlite-jdbc:3.44.1.0'
 }
 
-sourceCompatibility = '17'
-targetCompatibility = '17'
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src']
+        }
+        resources {
+            srcDirs = ['src']
+        }
+    }
+}
+
+sourceCompatibility = '21'
+targetCompatibility = '21'
 
 javafx {
-    version = '17.0.2'
+    version = '22.0.1'
     modules = ['javafx.controls', 'javafx.fxml']
 }
 
@@ -26,17 +36,14 @@ application {
 }
 
 run {
-    jvmArgs = [
-        '--module-path', configurations.runtimeClasspath.asPath,
-        '--add-modules', 'javafx.controls,javafx.fxml'
-    ]
+    mainClass = 'cardealership.Main'
 }
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
 
-// Add this to ensure proper handling of runtime dependencies
+// This ensures proper classpath handling
 tasks.withType(JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
