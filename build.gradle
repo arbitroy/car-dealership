@@ -1,0 +1,42 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.1.0'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // SQLite JDBC Driver
+    implementation 'org.xerial:sqlite-jdbc:3.44.1.0'
+}
+
+sourceCompatibility = '17'
+targetCompatibility = '17'
+
+javafx {
+    version = '17.0.2'
+    modules = ['javafx.controls', 'javafx.fxml']
+}
+
+application {
+    mainClass = 'cardealership.Main'
+}
+
+run {
+    jvmArgs = [
+        '--module-path', configurations.runtimeClasspath.asPath,
+        '--add-modules', 'javafx.controls,javafx.fxml'
+    ]
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+// Add this to ensure proper handling of runtime dependencies
+tasks.withType(JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+}
