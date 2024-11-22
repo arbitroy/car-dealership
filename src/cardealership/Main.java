@@ -182,7 +182,9 @@ public class Main extends Application {
         priceCol.setCellValueFactory(
                 cellData -> new SimpleStringProperty(String.format("$%.2f", cellData.getValue().getPrice())));
 
-        tableView.getColumns().addAll(brandCol, modelCol, priceCol);
+        tableView.getColumns().add(brandCol);
+        tableView.getColumns().add(modelCol);
+        tableView.getColumns().add(priceCol);
         tableView.setItems(FXCollections.observableArrayList(dealership.getCars()));
 
         VBox.setVgrow(tableView, Priority.ALWAYS);
@@ -367,7 +369,7 @@ public class Main extends Application {
         }
 
         contentArea.getChildren().clear();
-        
+
         VBox purchaseBox = new VBox(15);
         purchaseBox.setPadding(new Insets(20));
 
@@ -382,11 +384,11 @@ public class Main extends Application {
         ListView<Car> cartListView = new ListView<>();
         VBox.setVgrow(cartListView, Priority.ALWAYS);
         Label cartLabel = new Label("Shopping Cart (0 items)");
-        
+
         // Car selection
         ComboBox<Car> carComboBox = new ComboBox<>();
         carComboBox.setPromptText("Select a Car");
-        
+
         // Update available cars
         updateAvailableCars(carComboBox, cartListView);
 
@@ -408,7 +410,7 @@ public class Main extends Application {
             }
             cartListView.getItems().add(selectedCar);
             updateAvailableCars(carComboBox, cartListView);
-            updateCartSummary(cartListView, customerComboBox, summaryArea, cartLabel);;
+            updateCartSummary(cartListView, customerComboBox, summaryArea, cartLabel);
         });
 
         // Remove from cart functionality
@@ -419,7 +421,8 @@ public class Main extends Application {
             if (selectedCar != null) {
                 cartListView.getItems().remove(selectedCar);
                 updateAvailableCars(carComboBox, cartListView);
-                updateCartSummary(cartListView, customerComboBox, summaryArea, cartLabel);;
+                updateCartSummary(cartListView, customerComboBox, summaryArea, cartLabel);
+                ;
             }
         });
 
@@ -427,31 +430,30 @@ public class Main extends Application {
 
         Button checkoutBtn = new Button("Checkout");
         checkoutBtn.setStyle("-fx-background-color: #2ecc71; -fx-text-fill: white;");
-        
+
         checkoutBtn.setOnAction(e -> {
             if (cartListView.getItems().isEmpty()) {
                 showAlert("Error", "Cart is empty!", Alert.AlertType.ERROR);
                 return;
             }
-            
+
             if (customerComboBox.getValue() == null) {
                 showAlert("Error", "Please select a customer!", Alert.AlertType.ERROR);
                 return;
             }
 
             Optional<ButtonType> result = showConfirmationDialog(
-                "Confirm Purchase",
-                "Are you sure you want to complete this purchase?"
-            );
+                    "Confirm Purchase",
+                    "Are you sure you want to complete this purchase?");
 
             if (result.isPresent() && result.get() == ButtonType.OK) {
                 Customer selectedCustomer = customerComboBox.getValue();
                 double totalBasePrice = 0;
-                
+
                 for (Car car : cartListView.getItems()) {
                     totalBasePrice += car.getPrice();
                 }
-                
+
                 double tax = totalBasePrice * TAX_RATE;
                 double subtotal = totalBasePrice + tax;
                 double finalTotal = calculateDiscountedTotal(subtotal);
@@ -462,13 +464,13 @@ public class Main extends Application {
                     // Calculate individual car's proportion of total
                     double proportion = car.getPrice() / totalBasePrice;
                     DataManager.saveSale(car, selectedCustomer,
-                        car.getPrice(),
-                        tax * proportion,
-                        discount * proportion,
-                        finalTotal * proportion);
+                            car.getPrice(),
+                            tax * proportion,
+                            discount * proportion,
+                            finalTotal * proportion);
                     dealership.getCars().remove(car);
                 }
-                
+
                 DataManager.saveCars(dealership.getCars());
                 showAlert("Success", "Purchase completed successfully!", Alert.AlertType.INFORMATION);
                 showWelcomeScreen();
@@ -482,30 +484,27 @@ public class Main extends Application {
         // Create selection area
         VBox selectionArea = new VBox(10);
         selectionArea.getChildren().addAll(
-            new Label("Select Car to Add:"),
-            carComboBox,
-            addToCartBtn
-        );
+                new Label("Select Car to Add:"),
+                carComboBox,
+                addToCartBtn);
 
         // Create cart area
         VBox cartArea = new VBox(10);
         cartArea.getChildren().addAll(
-            cartLabel,
-            cartListView,
-            cartControls
-        );
+                cartLabel,
+                cartListView,
+                cartControls);
 
         // Main layout
         purchaseBox.getChildren().addAll(
-            headerLabel,
-            new Label("Select Customer:"),
-            customerComboBox,
-            selectionArea,
-            cartArea,
-            new Label("Order Summary:"),
-            summaryArea,
-            checkoutBtn
-        );
+                headerLabel,
+                new Label("Select Customer:"),
+                customerComboBox,
+                selectionArea,
+                cartArea,
+                new Label("Order Summary:"),
+                summaryArea,
+                checkoutBtn);
 
         contentArea.getChildren().add(purchaseBox);
     }
@@ -612,7 +611,11 @@ public class Main extends Application {
         TableColumn<Customer, String> addressCol = new TableColumn<>("Address");
         addressCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getAddress()));
 
-        tableView.getColumns().addAll(nameCol, ageCol, phoneCol, emailCol, addressCol);
+        tableView.getColumns().add(nameCol);
+        tableView.getColumns().add(ageCol);
+        tableView.getColumns().add(phoneCol);
+        tableView.getColumns().add(emailCol);
+        tableView.getColumns().add(addressCol);
         tableView.setItems(FXCollections.observableArrayList(customers));
 
         // Add search functionality
@@ -696,16 +699,6 @@ public class Main extends Application {
         alert.setHeaderText(null);
         alert.setContentText(content);
         return alert.showAndWait();
-    }
-
-    private String getDiscountDescription(double total) {
-        if (total >= 100000)
-            return "20% discount applied";
-        if (total >= 50000)
-            return "10% discount applied";
-        if (total >= 25000)
-            return "5% discount applied";
-        return "No discount applied";
     }
 
     public static void main(String[] args) {
